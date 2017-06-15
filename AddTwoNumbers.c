@@ -1,71 +1,159 @@
-#include    <stdio.h>
-#include    <stdlib.h>
-#include    <stddef.h>
-#include    <stdbool.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-struct ListNode 
-{
-    int val;
-    struct ListNode *next;
+struct ListNode {
+  unsigned int val;
+  struct ListNode *next;
 };
 
-int getDecNum(struct ListNode *list)
-{
-    int num = 0;
-    int order = 1;
-    struct ListNode *currentList = list;
-    
-    while(true)
-    {
-        if(NULL == currentList)
-        {
-            break;
-        }
-        num += order*currentList->val;
-        order *= 10;
-        currentList = currentList->next;
+void listAppend(struct ListNode **pList, unsigned int value) {
+  struct ListNode *pNode =
+      (struct ListNode *)calloc(1, sizeof(struct ListNode));
+  pNode->val = value;
+  pNode->next = NULL;
+
+  if (NULL == *pList) {
+    *pList = pNode;
+    return;
+  } else {
+    struct ListNode *pListCurrent = *pList;
+    while (NULL != pListCurrent->next) {
+      pListCurrent = pListCurrent->next;
     }
 
-    return num;
+    pListCurrent->next = pNode;
+    return;
+  }
 }
 
-struct ListNode *setDecNum(int num)
-{
-    return NULL;
+void listFree(struct ListNode *pList) {
+  struct ListNode *pCurrent = pList;
+  struct ListNode *pTemp = NULL;
+  while (NULL != pCurrent) {
+    pTemp = pCurrent;
+    printf("free value: %d\n", pTemp->val);
+    free(pTemp);
+    pCurrent = pCurrent->next;
+  }
+  return;
 }
 
-struct ListNode *addTwoNumbers(struct ListNode* l1, struct ListNode* l2) 
-{
-    return NULL; 
+unsigned int getDecNum(struct ListNode *list) {
+  unsigned int num = 0;
+  unsigned int order = 1;
+  struct ListNode *currentList = list;
+
+  while (NULL != currentList) {
+    num += order * currentList->val;
+    order *= 10;
+    currentList = currentList->next;
+  }
+
+  return num;
 }
 
-int main(int argc, char *argv[])
-{
-    struct ListNode node12;
-    node12.val = 3;
-    node12.next = NULL;
+struct ListNode *setDecNum(unsigned int num) {
+  unsigned int digit = num % 10;
+  struct ListNode *pNodeInit =
+      (struct ListNode *)calloc(1, sizeof(struct ListNode));
+  pNodeInit->val = digit;
+  pNodeInit->next = NULL;
+  num /= 10;
 
-    struct ListNode node11;
-    node11.val = 4;
-    node11.next = &node12;
+  struct ListNode *pNodeCurrent = pNodeInit;
 
-    struct ListNode node10;
-    node10.val = 2;
-    node10.next = &node11;
+  while (0 < num) {
+    digit = num % 10;
+    struct ListNode *pNode =
+        (struct ListNode *)calloc(1, sizeof(struct ListNode));
 
-    struct ListNode node22;
-    node22.val = 4;
-    node22.next = NULL;
+    pNode->val = digit;
+    pNode->next = NULL;
 
-    struct ListNode node21;
-    node21.val = 6;
-    node21.next = &node22;
+    pNodeCurrent->next = pNode;
+    pNodeCurrent = pNode;
+    num /= 10;
+  }
 
-    struct ListNode node20;
-    node20.val = 5;
-    node20.next = &node21;
+  return pNodeInit;
+}
 
-    printf("num 1 = %d\nnum 2 = %d\n", getDecNum(&node10), getDecNum(&node20));
-    getchar();
-    
+struct ListNode *addTwoNumbers(struct ListNode *l1, struct ListNode *l2) {
+  // unsigned int num1 = getDecNum(l1);
+  // unsigned int num2 = getDecNum(l2);
+  // unsigned int numSum = num1 + num2;
+  // return setDecNum(numSum);
+  struct ListNode *lSum = NULL;
+  struct ListNode *l1Current = l1;
+  struct ListNode *l2Current = l2;
+  unsigned int carryDigit = 0;
+  
+  while(NULL != l1Current || NULL != l2Current || 0 != carryDigit )
+  { 
+    unsigned int num1, num2 = 0;
+    if (NULL != l1Current)
+    {
+      num1=l1Current->val;
+      l1Current = l1Current->next;
+    }
+    else
+    {
+      num1=0;
+    }
+
+    if (NULL != l2Current)
+    {
+      num2=l2Current->val;
+      l2Current = l2Current->next;
+    }
+    else
+    {
+      num2=0;
+    }
+
+    unsigned int sumTemp = num1 + num2 + carryDigit;
+    if (9<sumTemp)
+    {
+      listAppend(&lSum, sumTemp%10);
+      carryDigit = 1;
+    }
+    else
+    {
+      listAppend(&lSum, sumTemp);
+      carryDigit = 0;
+    }
+  }
+  return lSum;
+}
+
+int main(int argc, char *argv[]) {
+  struct ListNode *l1 = NULL;
+  struct ListNode *l2 = NULL;
+  printf("%d,%d,%d\n",__INT32_MAX__,sizeof(unsigned int),sizeof(unsigned long));
+  // unsigned int numArray1[] = {3,4,2};
+  // unsigned int length1 = 3;
+  // unsigned int numArray2[] = {4,6,5};
+  // unsigned int length2 = 3;
+  unsigned int numArray1[] = {9};
+  unsigned int length1 = 1;
+  unsigned int numArray2[] = {9, 9, 9, 9, 9, 9, 9, 9, 9, 1};
+  unsigned int length2 = 10;
+
+  for (unsigned int i = 0; i < length1; i++) {
+    listAppend(&l1, numArray1[length1 - 1 - i]);
+  }
+
+  for (unsigned int i = 0; i < length2; i++) {
+    listAppend(&l2, numArray2[length2 - 1 - i]);
+  }
+  
+  struct ListNode *pSum = addTwoNumbers(l1,l2);
+  // unsigned int numSum = getDecNum(pSum);
+  // printf("num List Sum = %lf\n", 1.0*numSum);
+  listFree(l1);
+  listFree(l2);
+  listFree(pSum);
+  getchar();
 }

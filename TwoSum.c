@@ -20,7 +20,7 @@ int* twoSum(int* nums, int numsSize, int target)
 	return NULL;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	const int numsSize = 3;
 	int nums[3] = {3, 2, 4};
