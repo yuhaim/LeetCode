@@ -34,8 +34,8 @@ void listFree(struct ListNode *pList) {
   while (NULL != pCurrent) {
     pTemp = pCurrent;
     printf("free value: %d\n", pTemp->val);
-    free(pTemp);
     pCurrent = pCurrent->next;
+    free(pTemp);
   }
   return;
 }
